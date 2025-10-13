@@ -1,9 +1,5 @@
-//edwin: Now 100% compatible with original. 
-//I also configured the gridsize for a bambulabs printer. (10 x 10 cells)
-//https://www.printables.com/model/1108485-customizable-honeycomb-storage-wall-openscad/files
-
-$fn = $preview ? 32 : 64;
-z_fight = $preview ? 0.05 : 0;
+// Honeycomb wall generator
+// Adapted from https://www.printables.com/model/380870-customizable-honeycomb-storage-wall-openscad
 
 /*[ Hex unit size ]*/
 
@@ -15,25 +11,14 @@ hole_width = 20;
 wall_thickness = 1.8;
 
 /*[ Grid size settings ]*/
-//Bambulab:
-max_grid_width = 211;
-max_grid_height = 248;
-//Prusa i3 mk3:
-//max_grid_width=240;
-//max_grid_height=208;
+max_grid_width = 100;
+max_grid_height = 100;
 
 /*[ Grid shape ]*/
-column_data_index = 0; // [ 0:No custom columns, 1:Original by xander, 2:IKEA365 drybox filament end, 3:IKEA365 drybox other end ]
-fill = !column_data_index;
-flip_staggering = true;
+//If checked, ignores custom column sizes and fills grid to maximum size.
+fill = true;;flip_staggering = true;
 //Amount of hexagons per column. Each entry defines a one column, where the number specifies the amount of hex units that will be generated for the respective column. (Ignored if "fill" is checked)
-column_data = [
-  [], // no gaps
-  [3, 5, 8, 6, 4, 3, 4, 5, 6], // original example
-  [7, 6, 5, 7, 7, 6, 5, 7], // ikea365 drybox filament end
-  [4, 5, 4, 5, 4, 5, 4, 5], // ikea365 drybox other end
-];
-columns = column_data[column_data_index];
+columns = [3, 5, 8, 6, 4, 3, 4, 5, 6];
 include_offsets = false;
 //Optional: Offset for each column. This will ignore grid size limits.
 column_offsets = [0, -2, -3, -1, 0, 2, 4];
@@ -111,30 +96,25 @@ module hex(height, radius, wall_thickness, hole_width) {
   }
 }
 
-module wall(height, wall_thickness, length, end_chamfer = false) {
+module wall(height, wall_thickness, length) {
   hmax = height;
   hmin = 5.1;
   hd = 2;
   tmax = wall_thickness;
   tmin = wall_thickness - 1;
-  //ft = 0.18;//fillet thickness
-  ft = 0.4; //fillet thickness. (edwin: should be 0.4 to make it the same as the original)
+  ft = 0.18; //fillet thickness
   fh = 0.5; //fillet height
 
   difference() {
     rotate([90, 0, 0])
       linear_extrude(length)
-        polygon([[-0.01, 0], [-0.01, hmax], [tmin, hmax], [tmin, hmax - hd], [tmax, hmin], [tmax, fh], [tmax - ft, 0]]);
-
-    // Fillet on end faces where walls meet
-    // Typically not required as they become merged with adjacent walls
-    // But useful for single standalone walls or maybe future scenarios
-    if (end_chamfer)
-      for (mirror_flag = [0, 1]) {
-        mirror([0, mirror_flag, 0])
-          translate([0, mirror_flag * length, -z_fight / 2])
-            rotate([0, 0, -30])
-              cube([2 * tmax, tmax, hmax + z_fight]);
-      }
+        polygon([[0, 0], [0, hmax], [tmin, hmax], [tmin, hmax - hd], [tmax, hmin], [tmax, fh], [tmax - ft, 0]]);
+    //Fillet
+    rotate([0, 0, -30])
+      cube([4 * tmax, 2 * tmax, hmax]);
+    mirror([0, 1, 0])
+      translate([0, length, 0])
+        rotate([0, 0, -30])
+          cube([4 * tmax, 2 * tmax, hmax]);
   }
 }
