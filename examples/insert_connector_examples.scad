@@ -1,8 +1,6 @@
 // https://www.printables.com/model/1430719-customizable-honeycomb-wall-size-layout-thickness/files
 
-wall_thickness = 1.8; //thickness of thicker hexgrid-wall, default: 1.8
-
-include <insert_util_RR.scad>
+include <../insert_connectors.scad>
 
 /* [Setup Parameters] */
 $fa = 8;
@@ -32,7 +30,7 @@ decoration = true;
 // this defines three inserts of type 1 on the x-axis, one insert of type 1 in the 2nd row,
 // one insert of type 1 in the 3rd row (directly above the first insert of the first row),
 // and two inserts of type 2 in the fourth row.
-structure = [[1]];
+structure = [[1], [1], [1], [1]];
 
 insert_plug_adv(structure);
 

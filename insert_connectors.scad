@@ -1,5 +1,7 @@
 // https://www.printables.com/model/1430719-customizable-honeycomb-wall-size-layout-thickness/files
 
+wall_thickness = 1.8; //thickness of thicker hexgrid-wall, default: 1.8
+
 /* Constants */
 connector_thickness = 1.1; //thickness of connector between hexes, default: 1.1
 lip_outer_distance = 20 + 2 * wall_thickness - connector_thickness; //outer side-to-side distance of lip, without the connector, default: 22.5
@@ -20,6 +22,8 @@ snap_size = 0.5;
 snap_width = 2;
 
 connector_height = lip_height;
+
+tolerance = 0.1;
 
 // A tiny addition distance to add to dimensions to help the OpenSCAD preview.
 preview_bump = .002;
