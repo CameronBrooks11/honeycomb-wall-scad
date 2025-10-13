@@ -28,6 +28,7 @@ decoration_depth = 0.3;
 decoration_chamfer = decoration_depth / cos(45);
 
 color_list = ["red", "green", "blue", "RebeccaPurple", "Black", "Yellow"];
+
 /**
  * Map adjacent quadrants to a point in the structure array.
  *     1
@@ -36,6 +37,7 @@ color_list = ["red", "green", "blue", "RebeccaPurple", "Black", "Yellow"];
  *     4
  */
 quadrants_map = [[0, 1], [0, 2], [-1, 1], [-1, -1], [0, -2], [0, -1]];
+
 // map quadrant to angle.
 quadrant_angles = [30, 90, 150, 210, 270, 330];
 
@@ -257,12 +259,16 @@ module _connector(structure, current, quadrant, decorate) {
 
 function _check_location_populated_quadrant(structure, current, quadrant) =
   _check_location_populated_point(structure, _get_quadrant_point(current, quadrant));
+
 function _check_location_populated_point(structure, p) =
   let (x_pos = p[0], y_pos = p[1]) x_pos >= 0 && y_pos >= 0 && y_pos < len(structure) && x_pos < len(structure[y_pos]) && structure[y_pos][x_pos] > 0;
+
 function _get_quadrant_point(current, quadrant) =
   let (y_odd = current[1] % 2) add_points(
     add_points(current, quadrants_map[quadrant]),
     y_odd ? [(quadrant % 2 != (quadrant < 3 ? 1 : 0)) ? 1 : 0, 0] : [0, 0]
   );
+
 function hex_to_circular_radius(d) = d / sqrt(3) * 2;
+
 function add_points(p1, p2) = [p1[0] + p2[0], p1[1] + p2[1]];
