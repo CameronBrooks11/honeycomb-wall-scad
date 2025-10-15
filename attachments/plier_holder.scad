@@ -7,12 +7,12 @@ z_fight = $preview ? 0.05 : 0; // Small offset to prevent z-fighting in preview 
 // Parameters
 // =============================================================
 triangle_height = 25;
-triangle_base = 12;
+triangle_base = 14;
 tip_diameter = 3;
 
 length = 50;
 
-screw_diameter = 3.3;
+screw_diameter = 3.5;
 
 // =============================================================
 // Main build
