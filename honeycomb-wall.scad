@@ -1,196 +1,113 @@
-// Customizable Honeycomb Storage Wall 
-// https://www.printables.com/model/1108485
-// https://www.printables.com/model/1430719
+// honeycomb-wall.scad: a parametric honeycomb storage wall.
+//
+// Fills a print bed with honeycomb cells, or builds a custom layout column
+// by column, with optional gaps, solid cells and flat edges. Cell sizes come
+// from hsw.scad, shared with the inserts and clips.
 
-$fn = $preview ? 32 : 64;
-z_fight = $preview ? 0.05 : 0;
+include <hsw.scad>
 
-/*[ Hex unit size ]*/
-// Depth of the grid
-depth = 8;
-// Width of the hexagon's hole (flat-to-flat)
-hole_width = 20;
-// Thickness of the wall forming each hexagon
-wall_thickness = 1.8;
-
-/*[ Grid size settings ]*/
-// Bambu Lab A1 bed (approx 10×10 cells with defaults)
+/* [Grid size] */
+// Largest wall that fits the print bed (mm). The defaults suit a Bambu Lab
+// A1 (about 10 x 10 cells); a Prusa i3 MK3 takes 240 x 208.
 max_grid_width = 211;
 max_grid_height = 248;
-// Prusa i3 mk3 (example):
-// max_grid_width  = 240;
-// max_grid_height = 208;
 
-/*[ Grid shape ]*/
-column_data_index = 0; // [ 0:No custom columns, 1:Original by xander, 2:IKEA365 drybox filament end, 3:IKEA365 drybox other end ]
-fill = !column_data_index; // if true, ignores custom column sizes and fills to limits
+/* [Layout] */
+// 0 fills the grid size; the others are column-by-column layouts
+column_data_index = 0; // [0:Fill the grid size, 1:Example layout, 2:IKEA 365+ drybox filament end, 3:IKEA 365+ drybox other end]
+// Cells in each column, left to right, for each layout
+column_data = [
+  [],
+  [3, 5, 8, 6, 4, 3, 4, 5, 6],
+  [7, 6, 5, 7, 7, 6, 5, 7],
+  [4, 5, 4, 5, 4, 5, 4, 5],
+];
+// Start the half-cell stagger on the first column instead of the second
 flip_staggering = true;
 
-// Predefined column sets (ignored when fill = true)
-column_data = [
-  [], // no gaps: auto-fill to limits
-  [3, 5, 8, 6, 4, 3, 4, 5, 6], // original example
-  [7, 6, 5, 7, 7, 6, 5, 7], // IKEA365 filament end
-  [4, 5, 4, 5, 4, 5, 4, 5], // IKEA365 other end
-];
-columns = column_data[column_data_index];
-
-// Optional column vertical offsets (ignores grid limits when used)
+// Move columns up or down, in cells (custom layouts can then exceed the grid size)
 include_offsets = false;
 column_offsets = [0, -2, -3, -1, 0, 2, 4];
 
-// Optional column gaps by row index (1-based)
+// Leave cells out: for each column, the rows to skip, counting from 1
 include_gaps = false;
 column_gaps = [[], [3, 4], [4, 5], [2]];
 
-/*[ Solid bottoms ]*/
-// If enabled, adds solid floors to selected cells in each column
-// Tip: increase `depth` to `depth + solid_height` if you need the same insert depth.
+/* [Solid cells] */
+// Close the front of chosen cells with a solid face. Tip: add solid_height to
+// hsw_depth to keep the same insert depth behind it.
 include_solids = false;
 solid_height = 1;
-column_solids = [[], [], [for (i = [3:1:7]) i], [for (i = [2:1:7]) i]];
+// For each column, the rows to close, counting from 1
+column_solids = [[], [], [for (i = [3:7]) i], [for (i = [2:7]) i]];
 
-/*[ Flat edges ]*/
+/* [Flat edges] */
 edge_left = false;
 edge_top = false;
 edge_right = false;
 edge_bottom = false;
 
-// ---------------- Derived hex/grid geometry ----------------
-hex_inner_r = hole_width / sqrt(3); // inner side length (center→point)
-hex_h = hole_width + 2 * wall_thickness; // outer flat-to-flat
-hex_s = hex_h / sqrt(3); // outer side length
-hex_d = 2 * hex_s; // outer point-to-point
-hex_t = hex_s / 2;
+$fn = $preview ? 32 : 64;
 
-max_grid_hexagons_x =
-  fill ? floor(max_grid_width / (hex_d - hex_t) + (edge_left ? 0.5 : 0) + (edge_right ? 0.5 : 0))
-  : len(columns);
+// ---------------- Layout ----------------
+fill = column_data_index == 0;
+columns = column_data[column_data_index];
+// A flat edge cuts a cell in half, so it makes room for half a cell more.
+half_x = (edge_left ? 0.5 : 0) + (edge_right ? 0.5 : 0);
+half_y = (edge_top ? 0.5 : 0) + (edge_bottom ? 0.5 : 0);
 
-max_grid_hexagons_y =
-  fill ? floor(max_grid_height / hex_h + (edge_top ? 0.5 : 0) + (edge_bottom ? 0.5 : 0))
-  : max(columns);
+column_count = fill ? floor(max_grid_width / hsw_pitch_x() + half_x) : len(columns);
+// Rows in the unshifted columns, and in the columns shifted half a cell down
+rows_even = fill ? floor(max_grid_height / hsw_pitch_y() + half_y) : max(columns);
+rows_odd = fill ? floor(max_grid_height / hsw_pitch_y() - 0.5 + half_y) : max(columns) - 0.5;
 
-max_grid_hexagons_y_lo =
-  fill ? floor(max_grid_height / hex_h - 0.5 + (edge_top ? 0.5 : 0) + (edge_bottom ? 0.5 : 0))
-  : (max(columns) - 0.5);
+// How far down the grid reaches, for trimming the bottom edge
+grid_height = hsw_pitch_y() * max(rows_even - 0.5, rows_odd);
 
-total_width = max_grid_hexagons_x * (hex_d - hex_t) + hex_t;
-total_height = hex_h * max(max_grid_hexagons_y - 0.5, max_grid_hexagons_y_lo);
+function shifted(col) = (col + (flip_staggering ? 1 : 0)) % 2;
+function rows_in(col) = shifted(col) == 0 ? rows_even : rows_odd;
+function listed(list, col, row) = col < len(list) && len(search(row + 1, list[col])) > 0;
 
 // ---------------- Build ----------------
-translate([edge_left ? 0 : hex_s, edge_top ? 0 : -hex_h / 2, 0])
-  grid(
-    columns,
-    include_offsets ? column_offsets : [],
-    include_gaps ? column_gaps : [],
-    include_solids ? column_solids : [],
-    depth,
-    hole_width,
-    wall_thickness,
-    fill
-  );
-
-// ===========================================================
-// Modules
-// ===========================================================
-module grid(cols, offsets, gaps, solids, height, hole_w, wall_w, do_fill) {
-  for (hcol = [0:do_fill ? max_grid_hexagons_x - 1 : (len(cols) - 1)]) {
-    // Per-column helpers
-    col_has_offsets = (hcol < len(offsets));
-    col_has_gaps = (hcol < len(gaps));
-    col_has_solids = (hcol < len(solids));
-    col_height = do_fill ? max_grid_hexagons_y : cols[hcol];
-
-    for (hrow = [0:(col_height - 1)]) {
-      skip = col_has_gaps && (len(search(hrow + 1, gaps[hcol])) > 0);
-      solid_t = col_has_solids && (len(search(hrow + 1, solids[hcol])) > 0);
-      if (!skip) {
-        offset_value = col_has_offsets ? offsets[hcol] : 0;
-
-        lo = (hcol + (flip_staggering ? 1 : 0)) % 2;
-        x = (hex_d - hex_t) * hcol;
-        y = -hex_h * (hrow + offset_value + lo / 2);
-
-        in_bounds = hcol < max_grid_hexagons_x && hrow < (lo == 0 ? max_grid_hexagons_y : max_grid_hexagons_y_lo);
-
-        if (in_bounds) {
-          left = edge_left && hcol == 0;
-          top = edge_top && hrow == 0 && hcol % 2 == (flip_staggering ? 1 : 0);
-          right = edge_right && hcol == max_grid_hexagons_x - 1;
-          bottom = edge_bottom && hrow + 1 == (lo == 0 ? max_grid_hexagons_y : max_grid_hexagons_y_lo) && -y + hex_h > total_height + 0.001 && -y + hex_h / 2 <= total_height;
-
-          translate([x, y, 0])
-            halfhex(height, hex_s, wall_w, hole_w, left, top, right, bottom, solid_t);
-        }
+translate([edge_left ? 0 : hsw_cell_side(), edge_top ? 0 : -hsw_pitch_y() / 2, 0])
+  for (col = [0:column_count - 1]) {
+    n = fill ? rows_even : columns[col];
+    lift = include_offsets && col < len(column_offsets) ? column_offsets[col] : 0;
+    for (row = [0:n - 1])
+      if (row < rows_in(col) && !(include_gaps && listed(column_gaps, col, row))) {
+        y = -hsw_pitch_y() * (row + lift + shifted(col) / 2);
+        last = row + 1 == rows_in(col);
+        translate([hsw_pitch_x() * col, y, 0])
+          wall_cell(
+            left = edge_left && col == 0,
+            top = edge_top && row == 0 && shifted(col) == 0,
+            right = edge_right && col == column_count - 1,
+            // only a last cell that runs past the bottom, centre still inside
+            bottom = edge_bottom && last && hsw_pitch_y() - y > grid_height + 0.001 && hsw_pitch_y() / 2 - y <= grid_height,
+            solid = include_solids && listed(column_solids, col, row)
+          );
       }
-    }
   }
-}
 
-module halfhex(height, radius, wall_w, hole_w, left, top, right, bottom, solid_t) {
+// A cell, cut in half and closed with a flat wall on each side that asks,
+// and closed at the front if solid.
+module wall_cell(left, top, right, bottom, solid) {
+  h = hsw_pitch_y();
+  d = 2 * hsw_cell_side();
   difference() {
     union() {
-      hex(height, radius, wall_w, hole_w, solid_t);
-      if (left) translate([0, hex_h / 2, 0]) wall(height, wall_w, hex_h);
-      if (top) translate([hex_d / 2, 0, 0]) rotate([0, 0, -90]) wall(height, wall_w, hex_d);
-      if (right) translate([0, -hex_h / 2, 0]) rotate([0, 0, 180]) wall(height, wall_w, hex_h);
-      if (bottom) translate([-hex_d / 2, 0, 0]) rotate([0, 0, 90]) wall(height, wall_w, hex_d);
+      hsw_cell();
+      if (solid)
+        translate([0, 0, hsw_depth - solid_height])
+          linear_extrude(solid_height) hsw_hexagon(hsw_cell_flats());
+      if (left) translate([0, -h / 2, 0]) hsw_edge_wall(h);
+      if (right) translate([0, h / 2, 0]) rotate([0, 0, 180]) hsw_edge_wall(h);
+      if (top) translate([-d / 2, 0, 0]) rotate([0, 0, -90]) hsw_edge_wall(d);
+      if (bottom) translate([d / 2, 0, 0]) rotate([0, 0, 90]) hsw_edge_wall(d);
     }
-    if (left) translate([-hex_d / 2, -hex_h, 0]) cube([hex_d / 2, 2 * hex_h, depth]);
-    if (top) translate([-hex_d / 2, 0, 0]) cube([hex_d, hex_h, depth]);
-    if (right) translate([0, -hex_h, 0]) cube([hex_d / 2, 2 * hex_h, depth]);
-    if (bottom) translate([-hex_d / 2, -hex_h, 0]) cube([hex_d, hex_h, depth]);
-  }
-}
-
-module hex(height, radius, wall_w, hole_w, solid_t) {
-  // Six outer walls
-  for (i = [0:5])
-    rotate([0, 0, i * 60 + 30])
-      translate([-hole_w / 2 - wall_w, radius / 2, 0])
-        wall(height, wall_w, radius);
-
-  // Optional solid floor
-  if (solid_t)
-    translate([0, 0, depth - solid_height])
-      linear_extrude(height=solid_height)
-        polygon([for (ang = [0:60:359]) [radius * cos(ang), radius * sin(ang)]]);
-}
-
-// Profiled wall with optional end-chamfer trimmers
-module wall(height, wall_w, len, end_chamfer = false) {
-  hmax = height;
-  hmin = 5.1;
-  hd = 2; // keep Edwin’s compatible heel depth
-  tmax = wall_w;
-  tmin = wall_w - 1;
-  ft = 0.4; // fillet thickness
-  fh = 0.5; // fillet height
-
-  difference() {
-    rotate([90, 0, 0])
-      linear_extrude(len)
-        polygon(
-          [
-            [-0.01, 0],
-            [-0.01, hmax],
-            [tmin, hmax],
-            [tmin, hmax - hd],
-            [tmax, hmin],
-            [tmax, fh],
-            [tmax - ft, 0],
-          ]
-        );
-
-    // Optional end-face chamfers where walls meet
-    // Typically not required as they become merged with adjacent walls
-    // But useful for single standalone walls or maybe future scenarios
-    if (end_chamfer)
-      for (m = [0, 1])
-        mirror([0, m, 0])
-          translate([0, m * len, -z_fight / 2])
-            rotate([0, 0, -30])
-              cube([2 * tmax, tmax, hmax + z_fight]);
+    if (left) translate([-d / 2, -h, -1]) cube([d / 2, 2 * h, hsw_depth + 2]);
+    if (right) translate([0, -h, -1]) cube([d / 2, 2 * h, hsw_depth + 2]);
+    if (top) translate([-d / 2, 0, -1]) cube([d, h, hsw_depth + 2]);
+    if (bottom) translate([-d / 2, -h, -1]) cube([d, h, hsw_depth + 2]);
   }
 }
