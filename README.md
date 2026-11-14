@@ -79,7 +79,8 @@ face. Print inserts lip face down.
 
 `hsw-clips/hsw_clip.scad` makes a one-way clip, with an optional hex or
 rectangular base, and a connector that holds two neighbouring wall panels
-together. Turn on `generate_clip` or `generate_clipconnector`, plus a base.
+together. It draws a clip by default (`generate_clip`); turn on
+`generate_clipconnector` for the connector, and a base if you want one.
 
 The attachments screw to the wall or anywhere else:
 

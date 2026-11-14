@@ -1,1 +1,2 @@
-models: honeycomb-wall.scad, attachments/hook.scad, attachments/plier_holder.scad, attachments/tool_holder.scad
+models: honeycomb-wall.scad, attachments/hook.scad, attachments/plier_holder.scad, attachments/tool_holder.scad, hsw-clips/hsw_clip.scad
+libraries: BOSL2=BelfrySCAD/BOSL2@v2.0.787
