@@ -54,8 +54,9 @@ Print it back face down.
 ![Inserts of every type, joined](assets/inserts.png)
 
 An insert's body pushes into a cell, its lip stays on the front face, and six
-snaps hold it. In `examples/inserts.scad`, set `layout` to a list of rows,
-bottom row first, each a list of types:
+snaps hold it. In `examples/inserts.scad`, pick a `preset`, or set it to
+`"custom"` and set `layout` to a list of rows, bottom row first, each a list
+of types:
 
 | Type | Centre |
 | --- | --- |
@@ -100,8 +101,9 @@ The attachments screw to the wall or anywhere else:
 - an insert seated in a cell, at the default and the 25 mm sizes: the lip
   lies on the front face, the body clears the hole, and only the six snaps
   press into the wall, behind the lock;
-- the clip at both hole sizes, insert layouts joined and apart, every
-  attachment, and that a depth too shallow for the lock is refused.
+- the clip at both hole sizes, insert layouts joined and apart and each
+  preset, every attachment, and that a depth too shallow for the lock is
+  refused.
 
 `just images` renders the pictures in this README.
 
