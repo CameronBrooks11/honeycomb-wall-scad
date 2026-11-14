@@ -10,7 +10,7 @@ images:
     @mkdir -p assets
     montage -version >/dev/null
     openscad --render --colorscheme=Tomorrow --imgsize=700,500 --viewall --autocenter --camera=0,0,0,45,0,20,600 -D column_data_index=1 -o assets/wall.png honeycomb-wall.scad
-    openscad --render --colorscheme=Tomorrow --imgsize=500,400 --viewall --autocenter --camera=0,0,0,40,0,200,250 -D 'layout=[[1,2,3],[4,5],[6,7,8]]' -o assets/inserts.png examples/inserts.scad
+    openscad --render --colorscheme=Tomorrow --imgsize=500,400 --viewall --autocenter --camera=0,0,0,40,0,200,250 -D 'preset="every type"' -o assets/inserts.png examples/inserts.scad
     openscad --render --colorscheme=Tomorrow --imgsize=300,300 --viewall --autocenter --camera=0,0,0,60,0,30,90 -D generate_clip=true -D generate_clip_hex_base=true -o assets/a-clip.png hsw-clips/hsw_clip.scad
     openscad --render --colorscheme=Tomorrow --imgsize=300,300 --viewall --autocenter --camera=0,0,0,70,0,40,500 -o assets/a-hook.png attachments/hook.scad
     openscad --render --colorscheme=Tomorrow --imgsize=300,300 --viewall --autocenter --camera=0,0,0,60,0,30,200 -o assets/a-plier.png attachments/plier_holder.scad

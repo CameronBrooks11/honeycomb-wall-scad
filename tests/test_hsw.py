@@ -129,9 +129,13 @@ def main():
 
         # Insert layouts: neighbours join into one piece, separated ones don't.
         shape("inserts, the example column", INSERTS, 1, [46.42, 57.90, 10])
-        shape("inserts, a dense block", INSERTS, 1, [107.73, 57.90, 10], {"layout": "[[1,1,1],[1,1],[1,1,1],[1,1]]"})
-        shape("inserts, two not touching", INSERTS, 2, [107.73, 22.50, 10], {"layout": "[[1,0,1]]"})
-        shape("inserts, every type", INSERTS, 1, [107.73, 46.10, 10], {"layout": "[[1,2,3],[4,5],[6,7,8]]"})
+        shape("inserts, a dense block", INSERTS, 1, [107.73, 57.90, 10], {"preset": '"custom"', "layout": "[[1,1,1],[1,1],[1,1,1],[1,1]]"})
+        shape("inserts, two not touching", INSERTS, 2, [107.73, 22.50, 10], {"preset": '"custom"', "layout": "[[1,0,1]]"})
+        shape("inserts, every type", INSERTS, 1, [107.73, 46.10, 10], {"preset": '"custom"', "layout": "[[1,2,3],[4,5],[6,7,8]]"})
+        # The presets: each joins into one piece, and "every type" is the layout above.
+        shape("inserts, preset single", INSERTS, 1, [25.98, 22.50, 10], {"preset": '"single"'})
+        shape("inserts, preset horizontal strip", INSERTS, 1, [107.73, 34.30, 10], {"preset": '"horizontal strip"'})
+        shape("inserts, preset every type", INSERTS, 1, [107.73, 46.10, 10], {"preset": '"every type"'})
 
         # Attachments.
         shape("hook, filleted", os.path.join(ATT, "hook.scad"), 1, [90, 60, 144.98])
