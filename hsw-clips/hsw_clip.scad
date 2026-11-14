@@ -6,7 +6,7 @@ include <hswx.scad>
 $fn = $preview ? 32 : 64;
 
 generate_clipconnector = false;
-generate_clip = false;
+generate_clip = true;
 generate_clip_rect_base = false;
 generate_clip_hex_base = false;
 
