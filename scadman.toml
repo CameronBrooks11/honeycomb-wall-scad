@@ -1,0 +1,6 @@
+[project]
+name = "honeycomb-wall-scad"
+
+[dependencies.BOSL2]
+git = "https://github.com/BelfrySCAD/BOSL2"
+tag = "v2.0.787"

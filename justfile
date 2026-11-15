@@ -3,7 +3,7 @@ default:
 
 # Render the wall, inserts, clips and attachments, and check their geometry
 test:
-    python3 tests/test_hsw.py
+    p="$(scadman env)" && OPENSCADPATH="$p" python3 tests/test_hsw.py
 
 # Render the README pictures into assets/
 images:

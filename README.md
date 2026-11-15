@@ -82,6 +82,17 @@ rectangular base, and a connector that holds two neighbouring wall panels
 together. It draws a clip by default (`generate_clip`); turn on
 `generate_clipconnector` for the connector, and a base if you want one.
 
+The clip needs [BOSL2](https://github.com/BelfrySCAD/BOSL2) v2.0.787:
+`scadman.toml` declares it and `scadman.lock` pins the commit. With
+[scadman](https://github.com/CameronBrooks11/scadman) installed, run
+`scadman sync` in the repo, then put the folder `scadman env` prints on
+`OPENSCADPATH`, or start OpenSCAD with `scadman run`. Without scadman,
+install BOSL2 at that tag in your OpenSCAD libraries folder:
+
+```
+git clone --branch v2.0.787 https://github.com/BelfrySCAD/BOSL2.git
+```
+
 The attachments screw to the wall or anywhere else:
 
 - `attachments/hook.scad`: a J-shaped hook, filleted or chamfered, with
@@ -93,7 +104,8 @@ The attachments screw to the wall or anywhere else:
 
 ## Checks
 
-`just test` takes about 2 s on OpenSCAD 2026.10.15. It checks:
+`just test` takes about 2 s on OpenSCAD 2026.10.15, and gets BOSL2 from
+scadman. It checks:
 
 - the wall's size, its pieces and its volume, for a full bed, a custom
   layout, all four flat edges, and a 25 mm hole with a 2.5 mm wall;
