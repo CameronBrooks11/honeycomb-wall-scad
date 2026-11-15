@@ -1,0 +1,7 @@
+version = 1
+
+[[package]]
+name = "BOSL2"
+source = "https://github.com/BelfrySCAD/BOSL2"
+rev = "ca677d0cf7a70fdd302dcbdb622e074ac2eaa5b3"
+hash = "bcac77e55bbedb9ca71a76d1a0f728eee5f40dc0c059708b2fae54e01f3aca83"
