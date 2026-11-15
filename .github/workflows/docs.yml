@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - id: site
-        uses: CameronBrooks11/just-the-docs-template-openscad/build@v1
+        uses: CameronBrooks11/just-the-docs-template-openscad/build@3cbdca08b1b3ca69fc47d4ffb22a12051e239a4b # main until v1.7.0, which reads scadman.lock
       - if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v5
         with:
