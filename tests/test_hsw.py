@@ -67,7 +67,11 @@ def render(openscad, scad, out, defines=None):
     cmd = [openscad, "--hardwarnings", "--export-format", "binstl", "-o", out]
     for name, value in (defines or {}).items():
         cmd += ["-D", f"{name}={value}"]
-    return subprocess.run(cmd + [scad], capture_output=True, text=True)
+    result = subprocess.run(cmd + [scad], capture_output=True, text=True)
+    # A failed assert leaves the exit status at 0, so a WARNING or ERROR line fails it too.
+    if result.returncode == 0 and any(l.startswith(("WARNING", "ERROR")) for l in result.stderr.splitlines()):
+        result.returncode = 1
+    return result
 
 
 def main():
