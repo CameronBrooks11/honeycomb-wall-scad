@@ -39,51 +39,58 @@ function hsw_front_hole() = hsw_hole + 2 * hsw_lip;
 
 // The hole's width across flats from the back face (z = 0) to the front:
 // chamfered at the back, straight to the lock, widening to the front opening.
-function hsw_hole_profile(depth = hsw_depth) = [
-  [hsw_hole + 2 * hsw_back_chamfer_w, 0],
-  [hsw_hole, hsw_back_chamfer_h],
-  [hsw_hole, hsw_lock_z],
-  [hsw_front_hole(), depth - hsw_lip_depth],
-  [hsw_front_hole(), depth],
-];
+function hsw_hole_profile(depth = hsw_depth) =
+    [
+        [hsw_hole + 2 * hsw_back_chamfer_w, 0],
+        [hsw_hole, hsw_back_chamfer_h],
+        [hsw_hole, hsw_lock_z],
+        [hsw_front_hole(), depth - hsw_lip_depth],
+        [hsw_front_hole(), depth],
+    ];
 
 // A regular hexagon across flats f, corners at 0 and 180 degrees.
 module hsw_hexagon(f) {
-  circle(r = f / sqrt(3), $fn = 6);
+    circle(r=f / sqrt(3), $fn=6);
 }
 
 // The hole as a solid, slightly longer than the cell so it cuts cleanly.
 module hsw_hole_solid(depth = hsw_depth) {
-  p = hsw_hole_profile(depth);
-  e = 0.01;
-  rotate_extrude($fn = 6)
-    polygon(concat(
-      [[0, -e], [p[0][0] / sqrt(3), -e]],
-      [for (q = p) [q[0] / sqrt(3), q[1]]],
-      [[p[len(p) - 1][0] / sqrt(3), depth + e], [0, depth + e]]
-    ));
+    p = hsw_hole_profile(depth);
+    e = 0.01;
+    rotate_extrude($fn=6)
+        polygon(
+            concat(
+                [[0, -e], [p[0][0] / sqrt(3), -e]],
+                [for (q = p) [q[0] / sqrt(3), q[1]]],
+                [[p[len(p) - 1][0] / sqrt(3), depth + e], [0, depth + e]]
+            )
+        );
 }
 
 // One cell: the outer hexagon less its hole.
 module hsw_cell(depth = hsw_depth) {
-  assert(depth >= hsw_lock_z + hsw_lip_depth,
-         str("hsw_depth must be at least hsw_lock_z + hsw_lip_depth (", hsw_lock_z + hsw_lip_depth, " mm)"));
-  difference() {
-    linear_extrude(depth) hsw_hexagon(hsw_cell_flats());
-    hsw_hole_solid(depth);
-  }
+    assert(
+        depth >= hsw_lock_z + hsw_lip_depth,
+        str("hsw_depth must be at least hsw_lock_z + hsw_lip_depth (", hsw_lock_z + hsw_lip_depth, " mm)")
+    );
+    difference() {
+        linear_extrude(depth) hsw_hexagon(hsw_cell_flats());
+        hsw_hole_solid(depth);
+    }
 }
 
 // A straight wall with the hole's profile on its inner face, for closing a
 // cut cell along a flat edge. It lies along y from 0 to len, outer face at
 // x = 0 and inner face at x = hsw_wall, toward +x.
 module hsw_edge_wall(len, depth = hsw_depth) {
-  p = hsw_hole_profile(depth);
-  rotate([90, 0, 0]) translate([0, 0, -len])
-    linear_extrude(len)
-      polygon(concat(
-        [[0, 0]],
-        [for (q = p) [hsw_wall - (q[0] - hsw_hole) / 2, q[1]]],
-        [[0, depth]]
-      ));
+    p = hsw_hole_profile(depth);
+    rotate([90, 0, 0]) translate([0, 0, -len])
+            linear_extrude(len)
+                polygon(
+                    concat(
+                        [[0, 0]],
+                        [for (q = p) [hsw_wall - (q[0] - hsw_hole) / 2, q[1]]],
+                        [[0, depth]]
+                    )
+                );
 }
