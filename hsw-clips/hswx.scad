@@ -23,13 +23,13 @@ hswx_id_large = (hswx_inside + 2 * hswx_lock_lip) * 2 / sqrt(3); // diameter of 
 hswx_id_small = hswx_inside * 2 / sqrt(3); // diameter of circle containing small hexagon fitting standard plugs
 
 module _hswx_constant_show_all() {
-  echo("hswx_inside", hswx_inside);
-  echo("hswx_wall", hswx_wall);
-  echo("hswx_outside", hswx_outside);
-  echo("hswx_side", hswx_side);
-  echo("hswx_od", hswx_od);
-  echo("hswx_lock_depth", hswx_lock_depth);
-  echo("hswx_lock_lip", hswx_lock_lip);
-  echo("hswx_id_large", hswx_id_large);
-  echo("hswx_id_small", hswx_id_small);
+    echo("hswx_inside", hswx_inside);
+    echo("hswx_wall", hswx_wall);
+    echo("hswx_outside", hswx_outside);
+    echo("hswx_side", hswx_side);
+    echo("hswx_od", hswx_od);
+    echo("hswx_lock_depth", hswx_lock_depth);
+    echo("hswx_lock_lip", hswx_lock_lip);
+    echo("hswx_id_large", hswx_id_large);
+    echo("hswx_id_small", hswx_id_small);
 }

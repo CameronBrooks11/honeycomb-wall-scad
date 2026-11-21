@@ -5,6 +5,6 @@ include <../inserts.scad>
 
 TYPE = 1;
 intersection() {
-  hsw_cell();
-  translate([0, 0, hsw_depth + ins_lip_h]) mirror([0, 0, 1]) hsw_insert(TYPE, tol = 0, deco = false);
+    hsw_cell();
+    translate([0, 0, hsw_depth + ins_lip_h]) mirror([0, 0, 1]) hsw_insert(TYPE, tol=0, deco=false);
 }

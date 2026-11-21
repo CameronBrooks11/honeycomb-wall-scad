@@ -7,9 +7,9 @@ Z = 3;
 SLICE = 0.002;
 
 intersection() {
-  translate([-50, -50, Z - SLICE / 2]) cube([100, 100, SLICE]);
-  difference() {
-    linear_extrude(hsw_depth) hsw_hexagon(hsw_cell_flats());
-    hsw_cell();
-  }
+    translate([-50, -50, Z - SLICE / 2]) cube([100, 100, SLICE]);
+    difference() {
+        linear_extrude(hsw_depth) hsw_hexagon(hsw_cell_flats());
+        hsw_cell();
+    }
 }

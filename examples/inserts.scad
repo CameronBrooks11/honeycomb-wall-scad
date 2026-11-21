@@ -29,10 +29,10 @@ $fa = 8;
 $fs = 0.25;
 
 PRESETS = [
-  ["single", [[1]]],
-  ["zigzag column", [[1], [1], [1], [1]]],
-  ["horizontal strip", [[1, 1, 1], [1, 1]]],
-  ["every type", [[1, 2, 3], [4, 5], [6, 7, 8]]],
+    ["single", [[1]]],
+    ["zigzag column", [[1], [1], [1], [1]]],
+    ["horizontal strip", [[1, 1, 1], [1, 1]]],
+    ["every type", [[1, 2, 3], [4, 5], [6, 7, 8]]],
 ];
 chosen = preset == "custom" ? layout : [for (p = PRESETS) if (p[0] == preset) p[1]][0];
 assert(!is_undef(chosen), str("unknown preset ", preset));
