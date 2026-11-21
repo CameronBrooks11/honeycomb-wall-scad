@@ -1,3 +1,7 @@
+# Test workflow for an OpenSCAD repo: runs `just check` (formatting included) and
+# `just test` on the OpenSCAD snapshot the docs engine pins. Copy to
+# .github/workflows/test.yml. See docs/openscad-repos.md.
+
 name: Test
 
 on:
@@ -38,8 +42,21 @@ jobs:
           sudo chmod +x /usr/local/bin/openscad
           openscad --version
 
-      # scadman.lock pins the libraries; the setup action installs scadman and syncs
-      # them into .scadman/env, which the justfile's `scadman env` puts on OPENSCADPATH.
+      # topiary formats the .scad sources, and its version decides its output, so it
+      # is pinned by digest. Bump it with workstation-configs' apps/topiary.
+      - name: Install topiary
+        run: |
+          name=topiary-cli-x86_64-unknown-linux-gnu
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/$name.tar.xz" \
+            "https://github.com/tweag/topiary/releases/download/v0.8.0/$name.tar.xz"
+          echo "42e54ff151dd6b20621166a09e3a5df2b367a108799900c3adbfc9c10dc93aa1  $RUNNER_TEMP/$name.tar.xz" | sha256sum -c -
+          tar -xJf "$RUNNER_TEMP/$name.tar.xz" -C "$RUNNER_TEMP"
+          sudo install -m 755 "$RUNNER_TEMP/$name/topiary" /usr/local/bin/topiary
+          topiary prefetch openscad
+
+      # Only for a repo with libraries pinned in scadman.lock: installs scadman and
+      # syncs those libraries for the tests. Delete this step if the repo has no
+      # scadman.lock.
       - name: Install scadman and sync the libraries
         uses: CameronBrooks11/scadman/setup@v0.1.0-alpha.8
         with:
@@ -47,6 +64,9 @@ jobs:
 
       - name: Install just
         uses: extractions/setup-just@v4
+
+      - name: Check
+        run: just check
 
       - name: Run the tests
         run: just test
