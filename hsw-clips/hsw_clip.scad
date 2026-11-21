@@ -109,7 +109,6 @@ module hsw_clip(
             }
 }
 
-// hsw_clip(center=true, rotate=0); //, type=0, hexbase=3);
 if (generate_clipconnector)
     rotate([90, 0, 0])
         hsw_clipconnector(slop=0.05, rectbase=generate_clip_rect_base ? 3 : 0, hexbase=generate_clip_hex_base ? 3 : 0);
